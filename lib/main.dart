@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,16 +16,24 @@ import 'screens/onboarding_screen.dart';
 import 'services/score_a_store.dart';
 import 'services/licence_store.dart';
 import 'package:flutter/services.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // --- Firebase / notifications push (FCM) ---
-  // 1) Init Firebase (utilise lib/firebase_options.dart généré par flutterfire).
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // 2) Handler des messages reçus quand l'app est en arrière-plan / fermée.
-  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
-  // 3) Permission + canal + abonnement au topic « all » + affichage foreground.
-  await NotificationService.init();
+  // Protégé par try/catch : si la config Firebase d'une plateforme manque
+  // (ex. iOS avant `flutterfire configure`), l'app démarre quand même,
+  // simplement sans notifications push, au lieu de crasher au lancement.
+  try {
+    // 1) Init Firebase (utilise lib/firebase_options.dart généré par flutterfire).
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    // 2) Handler des messages reçus quand l'app est en arrière-plan / fermée.
+    FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+    // 3) Permission + canal + abonnement au topic « all » + affichage foreground.
+    await NotificationService.init();
+  } catch (e) {
+    debugPrint('Firebase / notifications désactivés : $e');
+  }
 
   await ScoreAStore.init(); // recharge le Score A enregistré (session précédente)
   await LicenceStore.init(); // recharge la Licence enregistrée (affichée sur l'accueil)
@@ -33,13 +42,16 @@ Future<void> main() async {
   // Barre système Android (boutons / gestes) : l'app dessine dessous et elle
   // est transparente -> c'est notre barre de navigation blanche qui apparaît
   // derrière les boutons (plus de bande sombre sous la navbar).
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.dark, // icônes sombres sur blanc
-    systemNavigationBarContrastEnforced: false,
-  ));
+  // iOS n'a pas de barre de navigation système : réglage Android uniquement.
+  if (Platform.isAndroid) {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark, // icônes sombres sur blanc
+      systemNavigationBarContrastEnforced: false,
+    ));
+  }
 
   InterstitialAdService.load();
   final bool onboardingVu = await OnboardingScreen.aEteVu();
@@ -105,7 +117,9 @@ class _RootShellState extends State<RootShell> {
       _go(0);
       return;
     }
-    // Accueil -> double retour pour quitter.
+    // Accueil -> double retour pour quitter (Android uniquement :
+    // Apple interdit aux apps de se fermer elles-mêmes).
+    if (!Platform.isAndroid) return;
     final now = DateTime.now();
     final last = _lastBack;
     if (last != null && now.difference(last) < const Duration(seconds: 2)) {
@@ -169,7 +183,7 @@ class _RootShellState extends State<RootShell> {
 // ─────────────────────────────────────────────────────────────────────────
 //
 // Barre PLEINE LARGEUR, collée en bas de l'écran : sa couleur descend
-// jusque sous la barre système Android (plus de fond blanc en dessous).
+// jusque sous la barre système (Android) / l'indicateur d'accueil (iPhone).
 // L'icône active est dans une bulle corail centrée EXACTEMENT sur le bord
 // haut de la barre ; l'encoche est un arc de cercle concentrique à la bulle
 // (rayon + _gap), donc l'écart bulle/encoche est constant partout.
@@ -216,8 +230,9 @@ class _NotchNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Hauteur de la barre système (gestes / boutons Android) : la barre
-    // bleue la recouvre aussi, les onglets restent au-dessus.
+    // Hauteur de la zone système en bas (gestes / boutons Android, indicateur
+    // d'accueil iPhone) : la barre la recouvre aussi, les onglets restent
+    // au-dessus.
     final double bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SizedBox(
