@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308715452386",
+    "project_id": "ing-licence-app",
+    "storage_bucket": "ing-licence-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308715452386:android:86dadf64e7b0c7faaeebbb",
+        "android_client_info": {
+          "package_name": "tn.inglicence.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbi2v2-Lvwlqwv5QK82W1JxPG8x5SKolQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

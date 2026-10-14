@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thème du splash screen natif Android 12+ -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@color/splash_bg</item>
+        <item name="android:statusBarColor">@color/ic_launcher_background</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+    </style>
+
+    <!-- Thème normal de l'app (appliqué après le splash) -->
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">@color/ic_launcher_background</item>
+    </style>
+
+    <color name="splash_bg">#FFFFFF</color>
+</resources>

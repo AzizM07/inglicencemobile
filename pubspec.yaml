@@ -1,0 +1,42 @@
+name: ing_licence
+description: "Simulateur d'admission aux écoles d'ingénieurs de Tunisie — Score A / Score E."
+publish_to: 'none'
+version: 1.0.0+5
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  http: ^1.2.2
+  shared_preferences: ^2.5.5
+  expressions: ^0.2.5
+  url_launcher: ^6.3.2
+  google_mobile_ads: ^5.1.0
+  lottie: ^3.6.1
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
+  flutter_local_notifications: ^22.3.1
+  in_app_update: ^4.2.5
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#3F5BF6"
+  adaptive_icon_foreground: "assets/images/logo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/lottie/
