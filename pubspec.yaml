@@ -22,7 +22,7 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
   flutter_local_notifications: ^22.3.1
-  in_app_update: ^4.2.5
+  in_app_update: ^4.2.5   # Android uniquement : protéger les appels avec Platform.isAndroid
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -30,13 +30,19 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: true
-  ios: false
+  ios: true
+  remove_alpha_ios: true
   image_path: "assets/images/logo.png"
   adaptive_icon_background: "#3F5BF6"
   adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
+
+  # iOS : utiliser CocoaPods au lieu de Swift Package Manager
+  config:
+    enable-swift-package-manager: false
+
   assets:
     - assets/images/
     - assets/lottie/
