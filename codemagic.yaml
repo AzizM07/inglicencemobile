@@ -1,4 +1,7 @@
 workflows:
+  # ─────────────────────────────────────────────────────────────
+  #  1) Build pour SIMULATEUR → test sur Appetize (pas de signature)
+  # ─────────────────────────────────────────────────────────────
   ios-simulator:
     name: iOS simulateur (Appetize)
     instance_type: mac_mini_m2
@@ -18,3 +21,39 @@ workflows:
           zip -r Runner.app.zip Runner.app
     artifacts:
       - build/ios/iphonesimulator/Runner.app.zip
+
+  # ─────────────────────────────────────────────────────────────
+  #  2) Build RELEASE signé → envoi sur TestFlight
+  # ─────────────────────────────────────────────────────────────
+  ios-release:
+    name: iOS release (TestFlight)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # Doit correspondre EXACTEMENT au nom donné à la clé API dans Codemagic
+      app_store_connect: inglicence_asc
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: tn.inglicence.app
+    scripts:
+      - name: Installer les dépendances
+        script: flutter pub get
+      - name: Appliquer les profils de signature
+        script: xcode-project use-profiles
+      - name: Build IPA signé
+        script: |
+          flutter build ipa --release \
+            --build-number=$PROJECT_BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        # Envoi sur TestFlight pour les testeurs internes (pas de review Apple).
+        submit_to_testflight: false
