@@ -18,6 +18,7 @@ dependencies:
   expressions: ^0.2.5
   url_launcher: ^6.3.2
   google_mobile_ads: ^5.1.0
+  app_tracking_transparency: ^2.0.6
   lottie: ^3.6.1
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0

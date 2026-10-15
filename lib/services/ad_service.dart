@@ -9,10 +9,10 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// ═══════════════════════════════════════════════════════════════════════
 ///
 /// Les écrans utilisent uniquement AdIds.banner / interstitial / native /
-/// rewarded. La bascule se fait ici :
-///  • Android + RELEASE → tes VRAIS IDs Ing-Licence ;
-///  • Android + DEBUG   → IDs de TEST Google (aucun risque de ban) ;
-///  • iOS               → IDs de TEST (pas encore d'app iOS dans AdMob).
+/// rewarded. La bascule se fait ici, même règle sur les deux plateformes :
+///  • RELEASE (Play Store, TestFlight, App Store) → VRAIS IDs Ing-Licence ;
+///  • DEBUG (flutter run, simulateur)             → IDs de TEST Google
+///    (aucun risque de ban).
 ///
 /// Où chaque ID est utilisé :
 ///  • banner       → bannière 320x50 en haut de l'accueil (home_screen.dart)
@@ -20,15 +20,28 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 ///  • native       → pub native de l'écran « Les admis » (admis_screen.dart)
 ///  • rewarded     → bloc « Voir ma chance » de l'accueil
 ///
-/// (AdMob → Applications → Ing-Licence → Blocs d'annonces)
+/// (AdMob → Applications → IngLicence Android / IngLicence iOS → Blocs d'annonces)
 class AdIds {
   // ── VRAIS IDs Android (Ing-Licence) ──
-  static const String _realBanner = 'ca-app-pub-4805254666545297/4273642646';
-  static const String _realInterstitial =
+  static const String _realBannerAndroid =
+      'ca-app-pub-4805254666545297/4273642646';
+  static const String _realInterstitialAndroid =
       'ca-app-pub-4805254666545297/2960560975';
-  static const String _realNative = 'ca-app-pub-4805254666545297/3251460150';
-  static const String _realRewarded =
+  static const String _realNativeAndroid =
+      'ca-app-pub-4805254666545297/3251460150';
+  static const String _realRewardedAndroid =
       'ca-app-pub-4805254666545297/1955435211';
+
+  // ── VRAIS IDs iOS (Ing-Licence) ──
+  // ID d'application iOS (dans Info.plist) : ca-app-pub-4805254666545297~7466814012
+  static const String _realBannerIos =
+      'ca-app-pub-4805254666545297/6174088652';
+  static const String _realInterstitialIos =
+      'ca-app-pub-4805254666545297/2222226193';
+  static const String _realNativeIos =
+      'ca-app-pub-4805254666545297/5982516966';
+  static const String _realRewardedIos =
+      'ca-app-pub-4805254666545297/2924933771';
 
   // ── IDs de TEST officiels Google ──
   static const String _testBannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
@@ -43,19 +56,41 @@ class AdIds {
       'ca-app-pub-3940256099942544/5224354917';
   static const String _testRewardedIos = 'ca-app-pub-3940256099942544/1712485313';
 
-  static String _pick(String realAndroid, String testAndroid, String testIos) {
-    if (!Platform.isAndroid) return testIos;
-    return kReleaseMode ? realAndroid : testAndroid;
+  static String _pick({
+    required String realAndroid,
+    required String realIos,
+    required String testAndroid,
+    required String testIos,
+  }) {
+    final bool ios = Platform.isIOS;
+    if (kReleaseMode) return ios ? realIos : realAndroid;
+    return ios ? testIos : testAndroid;
   }
 
-  static String get banner =>
-      _pick(_realBanner, _testBannerAndroid, _testBannerIos);
+  static String get banner => _pick(
+        realAndroid: _realBannerAndroid,
+        realIos: _realBannerIos,
+        testAndroid: _testBannerAndroid,
+        testIos: _testBannerIos,
+      );
   static String get interstitial => _pick(
-      _realInterstitial, _testInterstitialAndroid, _testInterstitialIos);
-  static String get native =>
-      _pick(_realNative, _testNativeAndroid, _testNativeIos);
-  static String get rewarded =>
-      _pick(_realRewarded, _testRewardedAndroid, _testRewardedIos);
+        realAndroid: _realInterstitialAndroid,
+        realIos: _realInterstitialIos,
+        testAndroid: _testInterstitialAndroid,
+        testIos: _testInterstitialIos,
+      );
+  static String get native => _pick(
+        realAndroid: _realNativeAndroid,
+        realIos: _realNativeIos,
+        testAndroid: _testNativeAndroid,
+        testIos: _testNativeIos,
+      );
+  static String get rewarded => _pick(
+        realAndroid: _realRewardedAndroid,
+        realIos: _realRewardedIos,
+        testAndroid: _testRewardedAndroid,
+        testIos: _testRewardedIos,
+      );
 }
 
 // NB : l'ancienne bannière du bas (HomeBannerAd) a été supprimée — la
@@ -262,7 +297,7 @@ class _AdIncomingPillState extends State<AdIncomingPill>
 
   @override
   Widget build(BuildContext context) {
-    // Au-dessus de la navbar (~91 px) + zone système Android.
+    // Au-dessus de la navbar (~91 px) + zone système (Android / iPhone).
     final double bottom = MediaQuery.paddingOf(context).bottom + 104;
     final curved = CurvedAnimation(
       parent: _enter,

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<!-- ===================== AdMob ===================== -->
-	<!-- ID d'application iOS : ID de TEST Google. À remplacer par le vrai ID AdMob iOS d'Ing-Licence avant l'App Store. -->
+	<!-- ID d'application AdMob iOS d'Ing-Licence -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-4805254666545297~7466814012</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -13,6 +13,10 @@
 			<string>cstr6suwn9.skadnetwork</string>
 		</dict>
 	</array>
+
+	<!-- ===================== App Tracking Transparency (pubs personnalisées) ===================== -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Votre identifiant permet d'afficher des publicités plus pertinentes. Ces publicités financent Ing-Licence et le gardent gratuit.</string>
 
 	<!-- ===================== Notifications push (Firebase Messaging) ===================== -->
 	<key>UIBackgroundModes</key>

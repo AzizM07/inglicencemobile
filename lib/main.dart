@@ -16,6 +16,7 @@ import 'screens/onboarding_screen.dart';
 import 'services/score_a_store.dart';
 import 'services/licence_store.dart';
 import 'package:flutter/services.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +70,28 @@ class IngLicenceApp extends StatefulWidget {
 
 class _IngLicenceAppState extends State<IngLicenceApp> {
   late bool _afficherOnboarding = widget.afficherOnboarding;
+
+  @override
+  void initState() {
+    super.initState();
+    // iOS : fenêtre Apple « Autoriser le suivi ? » (App Tracking Transparency).
+    // Elle doit s'afficher quand l'app est déjà visible, d'où le post-frame
+    // + petit délai. Sans réponse « Autoriser », AdMob sert des pubs non
+    // personnalisées (l'app marche quand même).
+    if (Platform.isIOS) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(milliseconds: 600));
+        try {
+          final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+          if (status == TrackingStatus.notDetermined) {
+            await AppTrackingTransparency.requestTrackingAuthorization();
+          }
+        } catch (e) {
+          debugPrint('ATT indisponible : $e');
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
